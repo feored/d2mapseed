@@ -19,6 +19,10 @@ Result:
 #### Insert map seed:
     python d2mapseed.py --insert 08939C62 "C:\Users\You\Saved Games\Diablo II Resurrected\OtherExample.d2s" 
 
+If you got a map seed from a different source in decimal format (ex: 348294647), combine with --format option:
+
+    python d2mapseed.py --insert 348294647 --format dec "C:\Users\You\Saved Games\Diablo II Resurrected\OtherExample.d2s" 
+
 #### Only generate new checksum:
     python d2mapseed.py "C:\Users\You\Saved Games\Diablo II Resurrected\Example.d2s"  --checksum 
 (Can be useful if you've been editing things manually and your save file seems broken.)

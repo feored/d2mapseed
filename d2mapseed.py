@@ -54,6 +54,7 @@ def main():
     parser.add_argument("filename", help="location of .d2s file that you wish to read/modify", type=str)
     parser.add_argument("-i", "--insert", help="insert a given map seed in .d2s file", type=str)
     parser.add_argument("-c", "--checksum", help="only insert valid checksum for .d2s file", action="store_true")
+    parser.add_argument("-f", "--format", help="pick which format to use for the map seed")
 
     args = parser.parse_args()
     d2sfile = Path(args.filename)
@@ -63,13 +64,18 @@ def main():
         sys.exit()
     
     if args.insert:
-        writeMapSeed(d2sfile, args.insert)
+        newSeed = args.insert
+        if args.format == "dec":
+            newSeed = str(int(newSeed).to_bytes(4, byteorder='big', signed = True).hex().upper())
+        writeMapSeed(d2sfile, newSeed)
         print(f"Inserted seed: {args.insert}")
         insertChecksum(d2sfile)
     elif args.checksum:
         insertChecksum(d2sfile)
     else:
         mapSeed = getMapSeed(d2sfile)
+        if args.format and args.format == "dec":
+            mapSeed = int(mapSeed, 16)
         print(f"Map seed: {mapSeed}")
 
 if __name__ == "__main__":
