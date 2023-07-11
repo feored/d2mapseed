@@ -65,7 +65,7 @@ def main():
     
     if args.insert:
         newSeed = args.insert
-        if args.format == "dec":
+        if args.format and args.format == "dec":
             newSeed = str(int(newSeed).to_bytes(4, byteorder='big', signed = True).hex().upper())
         writeMapSeed(d2sfile, newSeed)
         print(f"Inserted seed: {args.insert}")
