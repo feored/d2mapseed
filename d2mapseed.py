@@ -37,7 +37,15 @@ def writeMapSeed(filename, seed):
         f.write(bytes.fromhex(seed))
 
 def isValidFile(filename):
-    return filename.exists() and str(filename).lower().endswith("d2s")
+    if not filename.exists():
+        return False
+    if not str(filename).lower().endswith("d2s"):
+        return False
+    with open(filename, 'rb') as f:
+        signature = f.read(4)
+        if signature != b'\x55\xAA\x55\xAA':
+            return False
+    return True
 
 def insertChecksum(filename):
     checksum = getChecksum(filename)
