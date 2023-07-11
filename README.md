@@ -20,7 +20,7 @@ Result:
     python d2mapseed.py --insert 08939C62 "C:\Users\You\Saved Games\Diablo II Resurrected\OtherExample.d2s" 
 
 #### Only generate new checksum:
-    python d2mapseed.py "C:\Users\You\Saved Games\Diablo II Resurrected\Example.d2s"  --c 
+    python d2mapseed.py "C:\Users\You\Saved Games\Diablo II Resurrected\Example.d2s"  --checksum 
 (Can be useful if you've been editing things manually and your save file seems broken.)
 
 
