@@ -1,9 +1,11 @@
 import ctypes
+import argparse
+import sys
 from pathlib import Path
 
-def getFileData(fileName):
+def getFileData(filename):
     fileData = []
-    with open(fileName, 'rb') as f:
+    with open(filename, 'rb') as f:
         fileData = f.read()
     return fileData
 
@@ -16,20 +18,58 @@ def calcChecksum(data):
         checksum = ctypes.c_int32((checksum << 1) + ch + ctypes.c_int32(checksum < 0).value).value
     return checksum
 
-def getChecksum(fileName):
-    checksum = calcChecksum(getFileData(fileName))
-    return checksum.to_bytes(4, byteorder='little', signed = True).hex()
+def getChecksum(filename):
+    checksum = calcChecksum(getFileData(filename))
+    return checksum.to_bytes(4, byteorder='little', signed = True).hex().upper()
 
-def writeChecksum(fileName, checksum):
-    with open(fileName, 'r+b') as f:
+def writeChecksum(filename, checksum):
+    with open(filename, 'r+b') as f:
         f.seek(12)
         f.write(bytes.fromhex(checksum))
         
-def getMapSeed(fileName):
-    return getFileData(fileName)[171:175].hex()
+def getMapSeed(filename):
+    return getFileData(filename)[171:175].hex().upper()
 
-def insertMapSeed(fileName, seed):
-    with open(fileName, 'r+b') as f:
+def writeMapSeed(filename, seed):
+    with open(filename, 'r+b') as f:
         f.seek(171)
         f.write(bytes.fromhex(seed))
 
+def isValidFile(filename):
+    return filename.lower().endswith("d2s")
+
+def insertChecksum(filename):
+    checksum = getChecksum(filename)
+    writeChecksum(filename, checksum)
+    print(f"Generated new checksum: {checksum}")
+    
+
+def main():
+    parser = argparse.ArgumentParser(
+    prog="d2mapseed",
+    description="Save or load map seeds for D2R."
+    )
+    parser.add_argument("filename", help="location of .d2s file that you wish to read/modify",
+                    type=str)
+    
+    parser.add_argument("-i", "--insert", help="insert a given map seed in .d2s file", type=str)
+    parser.add_argument("-c", "--checksum", help="only insert valid checksum for .d2s file", action="store_true")
+
+    args = parser.parse_args()
+
+    if not isValidFile(args.filename):
+        print(f"Path {args.filename} is not a valid .d2s file.")
+        sys.exit()
+    
+    if args.insert:
+        writeMapSeed(args.filename, args.insert)
+        print(f"Inserted seed: {args.insert}")
+        insertChecksum(args.filename)
+    elif args.checksum:
+        insertChecksum(args.filename)
+    else:
+        mapSeed = getMapSeed(args.filename)
+        print(f"Map seed: {mapSeed}")
+
+if __name__ == "__main__":
+    main()
