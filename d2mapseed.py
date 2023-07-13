@@ -68,13 +68,16 @@ def main():
     d2sfile = Path(args.filename)
 
     if not isValidFile(d2sfile):
-        print(f"Path {args.filename} is not a valid .d2s file.")
-        sys.exit()
-    
+        sys.exit(f"Path {args.filename} is not a valid .d2s file.")
+        
     if args.insert:
         newSeed = args.insert
         if args.format and args.format == "dec":
+            if not newSeed.isnumeric():
+                sys.exit("Input seed is invalid (must contain only numbers).")
             newSeed = str(int(newSeed).to_bytes(4, byteorder='big', signed = True).hex().upper())
+        if len(newSeed) != 8 or not newSeed.isalnum():
+            sys.exit("Input seed is invalid.")
         writeMapSeed(d2sfile, newSeed)
         print(f"Inserted seed: {args.insert}")
         insertChecksum(d2sfile)
