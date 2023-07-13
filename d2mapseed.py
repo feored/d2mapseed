@@ -3,6 +3,13 @@ import ctypes
 import argparse
 import sys
 
+OFFSET_CHECKSUM_START   = 12
+OFFSET_CHECKSUM_END     = 16
+OFFSET_MAP_SEED_START   = 171
+OFFSET_MAP_SEED_END     = 175
+
+D2S_FILE_SIGNATURE      = b'\x55\xAA\x55\xAA'
+
 
 def getFileData(filename):
     fileData = []
@@ -14,7 +21,7 @@ def calcChecksum(data):
     checksum = 0
     for i in range(len(data)):
         ch = data[i]
-        if (i >= 12 and i < 16):
+        if (i >= OFFSET_CHECKSUM_START and i < OFFSET_CHECKSUM_END):
             ch = 0
         checksum = ctypes.c_int32((checksum << 1) + ch + ctypes.c_int32(checksum < 0).value).value
     return checksum
@@ -25,15 +32,15 @@ def getChecksum(filename):
 
 def writeChecksum(filename, checksum):
     with open(filename, 'r+b') as f:
-        f.seek(12)
+        f.seek(OFFSET_CHECKSUM_START)
         f.write(bytes.fromhex(checksum))
         
 def getMapSeed(filename):
-    return getFileData(filename)[171:175].hex().upper()
+    return getFileData(filename)[OFFSET_MAP_SEED_START:OFFSET_MAP_SEED_END].hex().upper()
 
 def writeMapSeed(filename, seed):
     with open(filename, 'r+b') as f:
-        f.seek(171)
+        f.seek(OFFSET_MAP_SEED_START)
         f.write(bytes.fromhex(seed))
 
 def isValidFile(filename):
@@ -43,14 +50,15 @@ def isValidFile(filename):
         return False
     with open(filename, 'rb') as f:
         signature = f.read(4)
-        if signature != b'\x55\xAA\x55\xAA':
+        if signature != D2S_FILE_SIGNATURE:
             return False
     return True
 
 def insertChecksum(filename):
     checksum = getChecksum(filename)
     writeChecksum(filename, checksum)
-    print(f"Generated new checksum: {checksum}")
+    return checksum
+    
     
 
 def main():
@@ -82,7 +90,8 @@ def main():
         print(f"Inserted seed: {args.insert}")
         insertChecksum(d2sfile)
     elif args.checksum:
-        insertChecksum(d2sfile)
+        newChecksum = insertChecksum(d2sfile)
+        print(f"Generated new checksum: {newChecksum}")
     else:
         mapSeed = getMapSeed(d2sfile)
         if args.format and args.format == "dec":
