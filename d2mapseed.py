@@ -96,7 +96,7 @@ def main():
         mapSeed = getMapSeed(d2sfile)
         if args.format and args.format == "dec":
             mapSeed = int(mapSeed, 16)
-        print(f"Map seed: {mapSeed}")
+        print(f"{mapSeed}")
 
 if __name__ == "__main__":
     main()
