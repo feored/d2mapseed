@@ -1,8 +1,11 @@
 from pathlib import Path
+import os
 import ctypes
 import argparse
 import sys
 
+OFFSET_SIZE_START       = 8
+OFFSET_SIZE_END         = 12
 OFFSET_CHECKSUM_START   = 12
 OFFSET_CHECKSUM_END     = 16
 OFFSET_MAP_SEED_START   = 171
@@ -25,6 +28,15 @@ def calcChecksum(data):
             ch = 0
         checksum = ctypes.c_int32((checksum << 1) + ch + ctypes.c_int32(checksum < 0).value).value
     return checksum
+
+def writeSize(filename):
+    size = os.path.getsize(filename)
+    size_bytes = size.to_bytes(4, byteorder='little', signed = False)
+    with open(filename, 'r+b') as f:
+        f.seek(OFFSET_SIZE_START)
+        f.write(size_bytes)
+    return (size, size_bytes.hex().upper())
+    
 
 def getChecksum(filename):
     checksum = calcChecksum(getFileData(filename))
@@ -71,13 +83,17 @@ def main():
     parser.add_argument("-i", "--insert", help="insert a given map seed in .d2s file", type=str)
     parser.add_argument("-c", "--checksum", help="only insert valid checksum for .d2s file", action="store_true")
     parser.add_argument("-f", "--format", help="pick which format to use for the map seed")
-
+    parser.add_argument("-s", "--size", help="insert file size in header (useful if you have a file that was modified manually)", action="store_true")
+    
     args = parser.parse_args()
     d2sfile = Path(args.filename)
 
     if not isValidFile(d2sfile):
         sys.exit(f"Path {args.filename} is not a valid .d2s file.")
         
+    if args.size:
+        newSize = writeSize(d2sfile)
+        print(f"Inserted new size: {newSize[1]} ({newSize[0]} bytes)")
     if args.insert:
         newSeed = args.insert
         if args.format and args.format == "dec":
