@@ -5,7 +5,9 @@
 
 This tool reads the map seed from a .d2s single-player file or writes a map seed in hex format into a .d2s file (as well as a valid new checksum).
 
-Find a map with a good LK or Durance of Hate layout and save it for later use. Alternatively, since this script can also be useful for testing if you are modifying your .d2s files manually with a hex editor, as it can generate a new file size and checksum in the header.
+Find a map with a good LK or Durance of Hate layout and save it for later use.
+
+Alternatively, this script can also be useful for testing if you are modifying your .d2s files manually with a hex editor, as it can insert a new valid file size value and checksum in the header.
 
 ### Usage
 
